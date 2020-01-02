@@ -83,6 +83,7 @@ func getMock(body *[]byte, contentType *string) http.HandlerFunc {
 		if len(*contentType) > 0 {
 			w.Header().Set("Content-Type", *contentType)
 			w.Write(*body)
+
 		}
 	}
 }
