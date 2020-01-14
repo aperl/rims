@@ -3,3 +3,4 @@ vendor
 rims
 .gitignore
 Dockerfile
+Makefile
