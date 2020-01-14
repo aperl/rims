@@ -6,6 +6,7 @@ build:
 	docker build --target release -t $(CONTAINER_NAME) .
 	docker tag $(CONTAINER_NAME):latest $(CONTAINER_NAME):$(VERSION)
 
+.PHONY: publish
 publish:
 	docker push $(CONTAINER_NAME):latest
 	docker push $(CONTAINER_NAME):$(VERSION)
