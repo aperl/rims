@@ -1,11 +1,11 @@
 package main
 
 import (
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 
+	"github.com/aperl/rims/server"
 	"github.com/gorilla/mux"
 )
 
@@ -36,54 +36,15 @@ func main() {
 		return
 	}
 
+	server := server.New()
+
 	r := mux.NewRouter()
-	body := &emptyBody
-	contentType := &emptyString
-	r.HandleFunc("/mock", loadMock(body, contentType)).Methods(http.MethodPost)
-	r.PathPrefix("/").Handler(getMock(body, contentType))
+	r.HandleFunc("/mock", server.LoadMock).Methods(http.MethodPost)
+	r.PathPrefix("/").HandlerFunc(server.GetMock)
 	println("Listening on port ", args[0])
 
 	if err := http.ListenAndServe(":"+args[0], r); err != nil {
 		println("Error: " + err.Error())
 	}
 	println("Closeing")
-}
-
-func loadMock(body *[]byte, contentType *string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		b, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		t := r.Header.Get("Content-Type")
-		if len(b) > 0 && len(t) == 0 {
-			http.Error(w, "If a body is present then there must be a Content-Type", http.StatusBadRequest)
-		}
-		if len(t) > 0 {
-			println("loading mock type: " + t)
-		}
-		*body, *contentType = b, t
-		w.WriteHeader(http.StatusCreated)
-		if len(*contentType) > 0 {
-			w.Header().Set("Content-Type", *contentType)
-			w.Write(*body)
-		}
-	}
-}
-
-func getMock(body *[]byte, contentType *string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		suffix := ""
-		if len(*contentType) > 0 {
-			suffix = " : " + *contentType
-		}
-		println(r.Method + " " + r.URL.Path + suffix)
-		w.WriteHeader(200)
-		if len(*contentType) > 0 {
-			w.Header().Set("Content-Type", *contentType)
-			w.Write(*body)
-
-		}
-	}
 }
