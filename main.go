@@ -62,7 +62,7 @@ func main() {
 	r.PathPrefix("/").HandlerFunc(server.GetMock)
 	println("Listening on port ", args[0])
 
-	if err := http.ListenAndServe(":"+args[0], r); err != nil {
+	if err := http.ListenAndServe("0.0.0.0:"+args[0], r); err != nil {
 		println("Error: " + err.Error())
 	}
 	println("Closeing")
